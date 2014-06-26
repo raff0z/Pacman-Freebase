@@ -26,7 +26,7 @@ public class SearchExample {
       url.put("filter", "(all type:/film/film)");
       url.put("limit", "10");
       url.put("indent", "true");
-      url.put("key", properties.get("API_KEY"));
+//      url.put("key", properties.get("API_KEY"));
       HttpRequest request = requestFactory.buildGetRequest(url);
       HttpResponse httpResponse = request.execute();
       JSONObject response = (JSONObject)parser.parse(httpResponse.parseAsString());

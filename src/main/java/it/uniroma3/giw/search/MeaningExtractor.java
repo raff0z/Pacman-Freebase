@@ -1,5 +1,7 @@
 package it.uniroma3.giw.search;
 
+import it.uniroma3.giw.helper.StringHelper;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -7,7 +9,6 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.StringTokenizer;
 
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
@@ -17,7 +18,6 @@ import com.google.api.client.http.GenericUrl;
 import com.google.api.client.http.HttpRequest;
 import com.google.api.client.http.HttpRequestFactory;
 import com.google.api.client.http.HttpResponse;
-import com.google.api.client.http.HttpTransport;
 import com.google.api.client.http.javanet.NetHttpTransport;
 import com.jayway.jsonpath.JsonPath;
 import com.jayway.jsonpath.PathNotFoundException;
@@ -28,29 +28,44 @@ public class MeaningExtractor {
 	private HttpRequestFactory requestFactory;
 	private JSONParser parser;
 	private Map<String, NGram> ngrams2Result;
-	private final float THRESHOLD = (float) 0.8;
-
+	private StringHelper sh;
+	
 	public MeaningExtractor(){
 		httpTransport = new NetHttpTransport();
 		requestFactory = httpTransport.createRequestFactory();
 		parser = new JSONParser();
 
 		this.ngrams2Result = new HashMap<String, NGram>();
+		this.sh = new StringHelper();
+	}
+	
+	public List<String> getMeanings(String field){
+	    String[] cleanedField = this.sh.cleanString(field);
+	    List<String> cleanedFieldList = new ArrayList<String>(Arrays.asList(cleanedField));
+	    
+	    List<String> resultList = this.sh.recursivePowerSet(cleanedFieldList);
+	    
+	    List<String> meanings = new ArrayList<String>();
+	    
+	    for (String string : resultList) {
+		meanings.add(extract(string));
+	    }
+	    return meanings;
+	    
 	}
 
 	public String extract(String field) {
 
-		for (String token : field.split(" ")){
-			GenericUrl url = this.prepareUrl(token);		
-			List<Result> results = this.getResults(url);
+	GenericUrl url = this.prepareUrl(field);
+	List<Result> results = this.getResults(url);
 
-			if (!results.isEmpty()){
-				this.populateMap(results);
-			}
-		}
+	if (!results.isEmpty()) {
+	    this.populateMap(results);
+	}
 		System.out.println(ngrams2Result.values());
-		List<NGram> sortedNGrams = this.sortedNgrams();
-		System.out.println("sorted: "+sortedNGrams);
+	List<NGram> sortedNGrams = this.sortedNgrams();
+	System.out.println("Tosort: " + ngrams2Result.values());
+	System.out.println("sorted: " + sortedNGrams);
 		this.compressList(sortedNGrams);
 		//System.out.println(sortedNGrams);
 		
@@ -218,27 +233,7 @@ public class MeaningExtractor {
 	//Crea l'insieme delle parti
 	private List<String> createPowerSet(Result result){
 		List<String> tokens = new ArrayList<String>(Arrays.asList(result.getName().split(" ")));
-		return recursivePowerSet(tokens);
+		return this.sh.recursivePowerSet(tokens);
 	}
-
-	private List<String> recursivePowerSet(List<String> list){
-		if(list.size() == 1) {
-			return list;
-		}
-
-		else{
-			String elem = list.remove(0);
-			List<String> results = recursivePowerSet(list);
-			List<String> resultsWithElem = new ArrayList<String>();
-			resultsWithElem.add(elem);
-			for(String result : results) 
-				resultsWithElem.add(elem + " " + result);
-
-			resultsWithElem.addAll(results);
-			return resultsWithElem;
-		}		
-	}
-
-
 
 }

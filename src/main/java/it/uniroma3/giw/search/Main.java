@@ -1,5 +1,7 @@
 package it.uniroma3.giw.search;
 
+import it.uniroma3.giw.helper.StringHelper;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.LinkedList;
@@ -36,7 +38,8 @@ public class Main {
 
 
 				String field = line[1];
-				String meaningField = meaningExtractor.extract(field);
+//				String meaningField = meaningExtractor.extract(field);
+				List<String> meaningField = meaningExtractor.getMeanings(field);
 
 				//System.out.println(meaningField); //Da salvare su csv
 

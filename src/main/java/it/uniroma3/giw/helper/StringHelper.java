@@ -7,11 +7,11 @@ public class StringHelper {
 
     public String[] cleanString(String string) {
 
-	string = string.replaceAll("[,.;!?%)(}{\\[\\]><]", " ");
+	string = string.replaceAll("[-,.;!?%)(}{\\[\\]><]", " ");
 	string = string.replaceAll("[\\s]+", " ");
 
 	String[] cleanedString = string.split(" ");
-
+	
 	return cleanedString;
     }
 

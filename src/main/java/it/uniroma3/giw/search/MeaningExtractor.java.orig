@@ -28,58 +28,72 @@ public class MeaningExtractor {
 	private HttpRequestFactory requestFactory;
 	private JSONParser parser;
 	private Map<String, NGram> ngrams2Result;
-	private StringHelper stringHelper;
+<<<<<<< HEAD
 	private final float THRESHOLD = (float) 0.8;
 
+=======
+	private StringHelper sh;
+	
+>>>>>>> origin/recursive-powerset-query
 	public MeaningExtractor(){
 		httpTransport = new NetHttpTransport();
 		requestFactory = httpTransport.createRequestFactory();
 		parser = new JSONParser();
 
 		this.ngrams2Result = new HashMap<String, NGram>();
-		this.stringHelper = new StringHelper();
+		this.sh = new StringHelper();
 	}
-
+	
 	public List<String> getMeanings(String field){
-		String[] cleanedField = this.stringHelper.cleanString(field);
-		List<String> cleanedFieldList = new ArrayList<String>(Arrays.asList(cleanedField));
-
-		List<String> resultList = this.stringHelper.recursivePowerSet(cleanedFieldList);
-
-		List<String> meanings = new ArrayList<String>();
-
-		for (String string : resultList) {
-			meanings.add(extract(string));
-		}
-		return meanings;
-
+	    String[] cleanedField = this.sh.cleanString(field);
+	    List<String> cleanedFieldList = new ArrayList<String>(Arrays.asList(cleanedField));
+	    
+	    List<String> resultList = this.sh.recursivePowerSet(cleanedFieldList);
+	    
+	    List<String> meanings = new ArrayList<String>();
+	    
+	    for (String string : resultList) {
+		meanings.add(extract(string));
+	    }
+	    return meanings;
+	    
 	}
 
 	public String extract(String field) {
-		System.out.println("entro");
-		System.out.println(field);
 
-		GenericUrl url = this.prepareUrl(field);
-		List<Result> results = this.getResults(url);
-		String meanings = ""; 
+	GenericUrl url = this.prepareUrl(field);
+	List<Result> results = this.getResults(url);
 
-		if (!results.isEmpty()) {
-			this.populateMap(results);
-
-
-			System.out.println(ngrams2Result.values());
-			List<NGram> sortedNGrams = this.sortedNgrams();
-			System.out.println("Tosort: " + ngrams2Result.values());
-			System.out.println("sorted: " + sortedNGrams);
-			this.compressList(sortedNGrams);
-			//System.out.println(sortedNGrams);
-
-			List<NGram> filteredList = this.filterList(sortedNGrams);
-
-			meanings = this.extractMeanings(filteredList);
-			//System.out.println(meanings);
+<<<<<<< HEAD
+			if (!results.isEmpty()){
+				this.populateMap(results);
+			}
 		}
+		System.out.println(ngrams2Result.values());
+		List<NGram> sortedNGrams = this.sortedNgrams();
+		System.out.println("sorted: "+sortedNGrams);
+		this.compressList(sortedNGrams);
+		//System.out.println(sortedNGrams);
+		
+		List<NGram> filteredList = this.filterList(sortedNGrams);
+		
+		String meanings = this.extractMeanings(filteredList);
+		//System.out.println(meanings);
+
 		return meanings;
+=======
+	if (!results.isEmpty()) {
+	    this.populateMap(results);
+
+	    // Attribbuire il significato
+	}
+		
+	List<NGram> sortedNGrams = this.sortedNgrams();
+	System.out.println("Tosort: " + ngrams2Result.values());
+	System.out.println("sorted: " + sortedNGrams);
+
+	return null;
+>>>>>>> origin/recursive-powerset-query
 	}	
 
 	private String extractMeanings(List<NGram> filteredList) {
@@ -101,7 +115,7 @@ public class MeaningExtractor {
 			}
 		}
 		return filteredList;
-
+		
 	}
 
 	private void compressList(List<NGram> ngrams) {
@@ -147,7 +161,7 @@ public class MeaningExtractor {
 					ngram1.setOccurrency(ngram1.getOccurrency()+ngram2.getOccurrency());
 					ngrams.remove(j);
 				}
-
+						
 			}
 		}
 	}
@@ -238,7 +252,33 @@ public class MeaningExtractor {
 	//Crea l'insieme delle parti
 	private List<String> createPowerSet(Result result){
 		List<String> tokens = new ArrayList<String>(Arrays.asList(result.getName().split(" ")));
-		return this.stringHelper.recursivePowerSet(tokens);
+<<<<<<< HEAD
+		return recursivePowerSet(tokens);
 	}
 
+	private List<String> recursivePowerSet(List<String> list){
+		if(list.size() == 1) {
+			return list;
+		}
+
+		else{
+			String elem = list.remove(0);
+			List<String> results = recursivePowerSet(list);
+			List<String> resultsWithElem = new ArrayList<String>();
+			resultsWithElem.add(elem);
+			for(String result : results) 
+				resultsWithElem.add(elem + " " + result);
+
+			resultsWithElem.addAll(results);
+			return resultsWithElem;
+		}		
+	}
+
+
+
+=======
+		return this.sh.recursivePowerSet(tokens);
+	}
+	
+>>>>>>> origin/recursive-powerset-query
 }

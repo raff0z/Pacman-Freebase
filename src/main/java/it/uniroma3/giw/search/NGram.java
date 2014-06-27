@@ -1,6 +1,6 @@
 package it.uniroma3.giw.search;
 
-public class NGram {
+public class NGram implements Comparable<NGram>{
 	
 	private String name;
 	private int occurrency;
@@ -46,6 +46,10 @@ public class NGram {
 
 	public void setScore(float score) {
 		this.score = score;
+	}
+
+	public int compareTo(NGram o) {
+		return (int) (this.getScore() - o.getScore());
 	}
 
 }

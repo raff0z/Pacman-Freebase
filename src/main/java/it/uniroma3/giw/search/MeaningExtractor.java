@@ -2,6 +2,7 @@ package it.uniroma3.giw.search;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -48,10 +49,20 @@ public class MeaningExtractor {
 				//Attribbuire il significato
 			}
 		}
+		
+		List<NGram> sortedNGrams = this.sortedNgrams();
+		System.out.println("Tosort: "+ngrams2Result.values());
+		System.out.println("sorted: "+sortedNGrams);
 
 		return null;
 	}	
 	
+	private List<NGram> sortedNgrams() {
+		List<NGram> sortedNGrams = new ArrayList<NGram>(ngrams2Result.values());
+		Collections.sort(sortedNGrams);
+		return sortedNGrams;
+	}
+
 	private GenericUrl prepareUrl(String query){
 
 		GenericUrl url = new GenericUrl("https://www.googleapis.com/freebase/v1/search");

@@ -10,7 +10,7 @@ public class Main {
 	public static void main(String[] args) {
 
 		//Per test
-		int MAX_LINE = 1;
+		int MAX_LINE = 5;
 		int count = 0;
 
 		MeaningExtractor meaningExtractor = new MeaningExtractor();
@@ -37,6 +37,7 @@ public class Main {
 
 				String field = line[1];
 				String meaningField = meaningExtractor.extract(field);
+				System.out.println(meaningField);
 
 				//System.out.println(meaningField); //Da salvare su csv
 

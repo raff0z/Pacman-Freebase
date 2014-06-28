@@ -49,17 +49,30 @@ public class MeaningExtractor {
 		List<String> cleanedFieldList = new ArrayList<String>(Arrays.asList(cleanedField));
 		List<String> resultList = this.stringHelper.recursivePowerSet(cleanedFieldList);
 		List<NGram> meanings = new LinkedList<NGram>();
-		
+//		Map<Integer,List<String>> words2strings = new HashMap<Integer, List<String>>();
 		this.lang = this.stringHelper.detectLanguage(field);
+//		int maxSize = 0;
 		
 		if(lang.equals("unknown")){
 		    this.lang = "en";
 		}
 		
 		for (String string : resultList) {
+//		    int words = this.stringHelper.wordCount(string);
+//		    if(words > maxSize){
+//			maxSize = words;
+//		    }
+//		    if(words2strings.keySet().contains(words)){
+//			words2strings.get(words).add(string);
+//		    }
+//		    else{
+//			List<String> strings = new ArrayList<String>();
+//			strings.add(string);
+//			words2strings.put(words,strings);
+//		    }
 			meanings.addAll(extract(string));
 		}
-		
+//		
 		this.compressList(meanings);
 		if(meanings.size() != 0){
 		    List<NGram> bests = this.getBestResults(meanings);

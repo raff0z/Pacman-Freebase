@@ -65,4 +65,9 @@ public class StringHelper {
 	LanguageIdentifier languageIdentifier = new LanguageIdentifier(string);
 	return languageIdentifier.getLanguage();
     }
+    
+    public int wordCount(String string){
+	String[] result = string.split(" ");
+	return result.length;
+    }
 }

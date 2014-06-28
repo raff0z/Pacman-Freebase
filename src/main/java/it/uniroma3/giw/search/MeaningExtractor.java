@@ -169,6 +169,9 @@ public class MeaningExtractor {
         	}
 		url.put("limit", "20");
 		url.put("indent", "true");
+		String lang = this.stringHelper.detectLanguage(query);
+		if(!lang.equals("unknown"))
+		    url.put("lang", lang);
 		//url.put("key", properties.get("API_KEY"));
 
 		return url;

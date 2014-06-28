@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.commons.validator.routines.UrlValidator;
+import org.apache.tika.language.LanguageIdentifier;
 
 public class StringHelper {
 
@@ -58,5 +59,10 @@ public class StringHelper {
 	
 	return result;
 	
+    }
+    
+    public String detectLanguage(String string){
+	LanguageIdentifier languageIdentifier = new LanguageIdentifier(string);
+	return languageIdentifier.getLanguage();
     }
 }

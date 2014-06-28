@@ -1,10 +1,6 @@
 package it.uniroma3.giw.search;
 
-import it.uniroma3.giw.helper.StringHelper;
-
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 

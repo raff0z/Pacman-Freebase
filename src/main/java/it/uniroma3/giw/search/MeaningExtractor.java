@@ -30,6 +30,7 @@ public class MeaningExtractor {
 	private Map<String, NGram> ngrams2Result;
 	private StringHelper stringHelper;
 	private final float THRESHOLD = (float) 0.8;
+	private String lang;
 	
 	private final int THRESHODL_BEST_NUMBER = 3;
 	private final float THRESHODL_BEST_SCORE_DIFFERENCE = (float) 0.3; 
@@ -48,14 +49,23 @@ public class MeaningExtractor {
 		List<String> cleanedFieldList = new ArrayList<String>(Arrays.asList(cleanedField));
 		List<String> resultList = this.stringHelper.recursivePowerSet(cleanedFieldList);
 		List<NGram> meanings = new LinkedList<NGram>();
-
+		
+		this.lang = this.stringHelper.detectLanguage(field);
+		
+		if(lang.equals("unknown")){
+		    this.lang = "en";
+		}
+		
 		for (String string : resultList) {
 			meanings.addAll(extract(string));
 		}
 		
 		this.compressList(meanings);
-		List<NGram> bests = this.getBestResults(meanings);
-		return extractMeanings(bests);
+		if(meanings.size() != 0){
+		    List<NGram> bests = this.getBestResults(meanings);
+		    return extractMeanings(bests);
+		}
+		return null;
 
 	}
 	
@@ -185,17 +195,16 @@ public class MeaningExtractor {
 
 		url.put("query", query);
 
-		//TODO: da arricchire col sito
-		//		if (this.isUrls(query)){
-		//			url.put("filter", "(all type:/internet/website)");
-		//		}
+        	if (this.stringHelper.isUrl(query)) {
+        	    url.put("filter", "(all type:/internet/website)");
+        	}
 		url.put("limit", "20");
 		url.put("indent", "true");
+		url.put("lang", this.lang);
 		//url.put("key", properties.get("API_KEY"));
 
 		return url;
 	}
-
 
 
 	private List<Result> getResults(GenericUrl url){

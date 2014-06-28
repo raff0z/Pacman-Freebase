@@ -1,15 +1,25 @@
 package it.uniroma3.giw.helper;
 
+import it.uniroma3.giw.stopwordsremover.StopWordsRemover;
+
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
+
+import org.apache.commons.validator.routines.UrlValidator;
 
 public class StringHelper {
 
     public String[] cleanString(String string) {
-
-	string = string.replaceAll("[-,.;!?%)(}{\\[\\]><]", " ");
+	StopWordsRemover stopWordsRemover = new StopWordsRemover();
+	
+	string = string.toLowerCase();
+	string = string.replaceAll("[-,;!?%)(}{\\[\\]><]", " ");
+	string = string.replaceAll("\\.\\s|\\s\\.", " ");
 	string = string.replaceAll("[\\s]+", " ");
-
+	string = stopWordsRemover.deleteStopWords(string);
+	
 	String[] cleanedString = string.split(" ");
 	
 	return cleanedString;
@@ -32,5 +42,21 @@ public class StringHelper {
 	    return resultsWithElem;
 	}
     }
-
+    
+    public boolean isUrl(String url){
+	try {
+	    new URL(url);
+	} catch (MalformedURLException e) {
+	    if(e.getMessage().contains("no protocol")){
+		url = "http://" + url;
+	    }
+	}
+	
+	UrlValidator urlValidator = new UrlValidator();
+	
+	boolean result = urlValidator.isValid(url);
+	
+	return result;
+	
+    }
 }

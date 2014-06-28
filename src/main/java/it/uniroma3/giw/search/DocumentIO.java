@@ -22,6 +22,8 @@ public class DocumentIO {
 
 	private String csvToRead;
 	private String csvToWrite;
+	
+	private String stopWordsPath;
 
 	private Map<String, CSVWriter> fileMap;
 
@@ -39,6 +41,8 @@ public class DocumentIO {
 
 		this.csvToRead = conf.getProperty("csv_to_read");
 		this.csvToWrite = conf.getProperty("csv_to_write");
+		
+		this.stopWordsPath = conf.getProperty("stop_words_path");
 
 		this.fileMap = new HashMap<String, CSVWriter>();
 		this.cleanPath();
@@ -97,6 +101,11 @@ public class DocumentIO {
 			}
 		};
 		return dir.list(filter);
+	}
+
+
+	public String getStopWordsPath() {
+	    return stopWordsPath;
 	}
 
 }

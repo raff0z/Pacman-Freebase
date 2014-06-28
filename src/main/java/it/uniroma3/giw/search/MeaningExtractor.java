@@ -164,10 +164,9 @@ public class MeaningExtractor {
 
 		url.put("query", query);
 
-		//TODO: da arricchire col sito
-		//		if (this.isUrls(query)){
-		//			url.put("filter", "(all type:/internet/website)");
-		//		}
+        	if (this.stringHelper.isUrl(query)) {
+        	    url.put("filter", "(all type:/internet/website)");
+        	}
 		url.put("limit", "20");
 		url.put("indent", "true");
 		//url.put("key", properties.get("API_KEY"));

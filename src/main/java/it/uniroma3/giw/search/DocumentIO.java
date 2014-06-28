@@ -1,5 +1,6 @@
 package it.uniroma3.giw.search;
 
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -24,8 +25,11 @@ public class DocumentIO {
 	private String csvToWrite;
 
 	private Map<String, CSVWriter> fileMap;
+	private String lastCSVRowFile;
+	private String lastCSVFileNameFile;
 
-	public DocumentIO(){
+	public DocumentIO(String lastCSVRow, String lastCSVFileName){
+				
 		Properties conf = new Properties();
 		try {
 			InputStream inputStream = this.getClass().getClassLoader().getResourceAsStream("config/pacman_configuration.properties");
@@ -41,7 +45,11 @@ public class DocumentIO {
 		this.csvToWrite = conf.getProperty("csv_to_write");
 
 		this.fileMap = new HashMap<String, CSVWriter>();
-		this.cleanPath();
+		//this.cleanPath();
+		
+
+		this.lastCSVRowFile = this.csvToWrite + lastCSVRow;
+		this.lastCSVFileNameFile = this.csvToWrite + lastCSVFileName;
 	}
 
 
@@ -50,42 +58,60 @@ public class DocumentIO {
 			CSVReader reader = new CSVReader(new FileReader(this.csvToRead + fileName));
 			return reader.readAll();
 		} catch (FileNotFoundException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		return null;
 	}
 
-	public void saveCSV(String fileName, String[] line) {
+	public void saveCSV(String fileName, String[] line, int lineNumber) {
 
-		CSVWriter writer;
 		try {
-			if (!this.fileMap.containsKey(fileName)) {
-				writer = new CSVWriter(new FileWriter(this.csvToWrite + fileName + ".csv"));
-				this.fileMap.put(fileName, writer);
-			} else 
-				writer = this.fileMap.get(fileName);
-
-			writer.writeNext(line);
+			CSVWriter writer = new CSVWriter(new FileWriter(this.csvToWrite + fileName + ".csv", true));
+			writer.writeNext(line);			
+			this.saveCheckpoint(fileName);			
+			writer.close();
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
 	}
 
-	private void cleanPath() {
-		File dir = new File(this.csvToWrite);
-		if (dir.exists())
-			deleteFolder(dir);
+//	private void cleanPath() {
+//		File dir = new File(this.csvToWrite);
+//		if (dir.exists())
+//			deleteFolder(dir);
+//	}
+//
+//	private void deleteFolder(File d) {
+//		for(File f : d.listFiles()) {
+//			if(!f.isFile())
+//				deleteFolder(f);
+//			f.delete();		
+//		}
+//	}
+
+	private void saveCheckpoint(String fileName) throws IOException {
+		String lastFileName = this.getLastCSVFile();
+		save(this.lastCSVFileNameFile, fileName);
+		
+		int realrow;
+		if (fileName.equals(lastFileName))
+			realrow = this.getLastCSVRow() + 1;
+		else
+			realrow = 0;
+		
+		save(this.lastCSVRowFile, realrow+"");
 	}
 
-	private void deleteFolder(File d) {
-		for(File f : d.listFiles()) {
-			if(!f.isFile())
-				deleteFolder(f);
-			f.delete();		
+	public static void save(String fileName, String toSave){
+		try {
+			FileOutputStream file = new FileOutputStream(fileName);
+			PrintStream stream = new PrintStream(file);
+			stream.print(toSave);
+			stream.close();
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
 		}
 	}
 
@@ -97,6 +123,34 @@ public class DocumentIO {
 			}
 		};
 		return dir.list(filter);
+	}
+
+
+	public int getLastCSVRow() throws IOException {
+		BufferedReader reader = null;
+		int row = -1;
+		try {
+			reader = new BufferedReader(new FileReader(this.lastCSVRowFile));	
+			row = Integer.valueOf(reader.readLine());
+			reader.close();
+		} catch (FileNotFoundException e) {
+			System.out.println("LastDBRowFile does not exist, return -1");
+		}
+		return row; 
+	}
+
+
+	public String getLastCSVFile() throws IOException {
+		BufferedReader reader = null;
+		String name = "";
+		try {
+			reader = new BufferedReader(new FileReader(this.lastCSVFileNameFile));	
+			name = reader.readLine();
+			reader.close();			
+		} catch (FileNotFoundException e) {
+			System.out.println("lastCSVFileName does not exist, return \"\"");
+		}
+		return name; 
 	}
 
 }

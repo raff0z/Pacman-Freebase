@@ -30,6 +30,9 @@ public class MeaningExtractor {
 	private Map<String, NGram> ngrams2Result;
 	private StringHelper stringHelper;
 	private final float THRESHOLD = (float) 0.8;
+	
+	private final int THRESHODL_BEST_NUMBER = 3;
+	private final float THRESHODL_BEST_SCORE_DIFFERENCE = (float) 0.3; 
 
 	public MeaningExtractor(){
 		httpTransport = new NetHttpTransport();
@@ -40,46 +43,62 @@ public class MeaningExtractor {
 		this.stringHelper = new StringHelper();
 	}
 
-	public List<String> getMeanings(String field){
+	public String getMeanings(String field){
 		String[] cleanedField = this.stringHelper.cleanString(field);
 		List<String> cleanedFieldList = new ArrayList<String>(Arrays.asList(cleanedField));
-
 		List<String> resultList = this.stringHelper.recursivePowerSet(cleanedFieldList);
-
-		List<String> meanings = new ArrayList<String>();
+		List<NGram> meanings = new LinkedList<NGram>();
 
 		for (String string : resultList) {
-			meanings.add(extract(string));
+			meanings.addAll(extract(string));
 		}
-		return meanings;
+		
+		this.compressList(meanings);
+		List<NGram> bests = this.getBestResults(meanings);
+		return extractMeanings(bests);
 
 	}
+	
+	/**
+	 * Prende i primi n NGram solo se non c'è una differenza maggiore di THRESHODL_BEST_SCORE_DIFFERENCE 
+	 * @param meanings
+	 * @return
+	 */
+	private List<NGram> getBestResults(List<NGram> meanings) {
+		List<NGram> filtered = new LinkedList<NGram>();
+		float bestNGramScore = meanings.get(0).getScore();
+		for (int i=0; i<meanings.size(); i++){
+			
+			//Controllo se ho preso troppi elementi
+			if (i>=THRESHODL_BEST_NUMBER) break; 
+			NGram current = meanings.get(i);
+			
+			//Se è inferiore alla soglia, allora non trovo più buoni risultati
+			if (current.getScore() < bestNGramScore*THRESHODL_BEST_SCORE_DIFFERENCE) break;
+						
+			filtered.add(current);			
+		}
+		return filtered;
+	}
 
-	public String extract(String field) {
-		System.out.println("entro");
-		System.out.println(field);
-
+	public List<NGram> extract(String field) {
 		GenericUrl url = this.prepareUrl(field);
 		List<Result> results = this.getResults(url);
-		String meanings = ""; 
+//		String meanings = ""; 
 
 		if (!results.isEmpty()) {
 			this.populateMap(results);
 
-
-			System.out.println(ngrams2Result.values());
 			List<NGram> sortedNGrams = this.sortedNgrams();
-			System.out.println("Tosort: " + ngrams2Result.values());
-			System.out.println("sorted: " + sortedNGrams);
 			this.compressList(sortedNGrams);
-			//System.out.println(sortedNGrams);
 
 			List<NGram> filteredList = this.filterList(sortedNGrams);
-
-			meanings = this.extractMeanings(filteredList);
-			//System.out.println(meanings);
+			
+			//meanings = this.extractMeanings(filteredList);
+//			System.out.println(meanings);
+			return filteredList;
 		}
-		return meanings;
+		return new LinkedList<NGram>();
 	}	
 
 	private String extractMeanings(List<NGram> filteredList) {
@@ -92,6 +111,7 @@ public class MeaningExtractor {
 
 		return meanings;
 	}
+	
 
 	private List<NGram> filterList(List<NGram> sortedNGrams) {
 		List<NGram> filteredList = new LinkedList<NGram>();
@@ -100,6 +120,7 @@ public class MeaningExtractor {
 				filteredList.add(ngram);
 			}
 		}
+		Collections.sort(sortedNGrams);
 		return filteredList;
 
 	}

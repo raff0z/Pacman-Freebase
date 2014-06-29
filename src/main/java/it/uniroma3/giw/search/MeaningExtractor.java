@@ -47,32 +47,43 @@ public class MeaningExtractor {
 	public String getMeanings(String field){
 		String[] cleanedField = this.stringHelper.cleanString(field);
 		List<String> cleanedFieldList = new ArrayList<String>(Arrays.asList(cleanedField));
+		int maxSize = cleanedFieldList.size();
 		List<String> resultList = this.stringHelper.recursivePowerSet(cleanedFieldList);
 		List<NGram> meanings = new LinkedList<NGram>();
-//		Map<Integer,List<String>> words2strings = new HashMap<Integer, List<String>>();
+		Map<Integer,List<String>> words2strings = new HashMap<Integer, List<String>>();
 		this.lang = this.stringHelper.detectLanguage(field);
-//		int maxSize = 0;
 		
 		if(lang.equals("unknown")){
 		    this.lang = "en";
 		}
 		
 		for (String string : resultList) {
-//		    int words = this.stringHelper.wordCount(string);
-//		    if(words > maxSize){
-//			maxSize = words;
-//		    }
-//		    if(words2strings.keySet().contains(words)){
-//			words2strings.get(words).add(string);
-//		    }
-//		    else{
-//			List<String> strings = new ArrayList<String>();
-//			strings.add(string);
-//			words2strings.put(words,strings);
-//		    }
-			meanings.addAll(extract(string));
+		    int words = this.stringHelper.wordCount(string);
+		    if(words2strings.keySet().contains(words)){
+			words2strings.get(words).add(string);
+		    }
+		    else{
+			List<String> strings = new ArrayList<String>();
+			strings.add(string);
+			words2strings.put(words,strings);
+		    }
+//			meanings.addAll(extract(string));
 		}
-//		
+		
+		for (int i = maxSize; i>0; i--) {
+		    List<String> wordsToScan = words2strings.get(i);
+		    NGram maxNGram = null;
+		    for(String string : wordsToScan){
+			meanings.addAll(extract(string));
+			if(!meanings.isEmpty()){
+			    maxNGram =  Collections.min(meanings);
+			    
+			}
+		    }
+		    if((maxNGram != null)&&(maxNGram.getScore() >= THRESHOLD)){
+			break;
+		    }
+		}
 		this.compressList(meanings);
 		if(meanings.size() != 0){
 		    List<NGram> bests = this.getBestResults(meanings);

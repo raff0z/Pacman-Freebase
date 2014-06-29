@@ -48,6 +48,11 @@ public class MeaningExtractor {
 		String[] cleanedField = this.stringHelper.cleanString(field);
 		List<String> cleanedFieldList = new ArrayList<String>(Arrays.asList(cleanedField));
 		int maxSize = cleanedFieldList.size();
+		
+		if(maxSize > 10){
+		    return null;
+		}
+		
 		List<String> resultList = this.stringHelper.recursivePowerSet(cleanedFieldList);
 		List<NGram> meanings = new LinkedList<NGram>();
 		Map<Integer,List<String>> words2strings = new HashMap<Integer, List<String>>();

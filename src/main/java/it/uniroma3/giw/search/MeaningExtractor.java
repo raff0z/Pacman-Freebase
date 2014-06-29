@@ -31,7 +31,7 @@ public class MeaningExtractor {
 	private StringHelper stringHelper;
 	private final float THRESHOLD = (float) 0.8;
 	private String lang;
-	
+
 	private final int THRESHODL_BEST_NUMBER = 3;
 	private final float THRESHODL_BEST_SCORE_DIFFERENCE = (float) 0.3; 
 
@@ -48,56 +48,59 @@ public class MeaningExtractor {
 		String[] cleanedField = this.stringHelper.cleanString(field);
 		List<String> cleanedFieldList = new ArrayList<String>(Arrays.asList(cleanedField));
 		int maxSize = cleanedFieldList.size();
-		
-		if(maxSize > 10){
-		    return null;
+
+		List<String> resultList;
+
+		if(maxSize >= 10){
+			resultList = cleanedFieldList;
 		}
-		
-		List<String> resultList = this.stringHelper.recursivePowerSet(cleanedFieldList);
+		else{
+			resultList = this.stringHelper.recursivePowerSet(cleanedFieldList);
+		}
 		List<NGram> meanings = new LinkedList<NGram>();
 		Map<Integer,List<String>> words2strings = new HashMap<Integer, List<String>>();
 		this.lang = this.stringHelper.detectLanguage(field);
-		
+
 		if(lang.equals("unknown")){
-		    this.lang = "en";
+			this.lang = "en";
 		}
-		
+
 		for (String string : resultList) {
-		    int words = this.stringHelper.wordCount(string);
-		    if(words2strings.keySet().contains(words)){
-			words2strings.get(words).add(string);
-		    }
-		    else{
-			List<String> strings = new ArrayList<String>();
-			strings.add(string);
-			words2strings.put(words,strings);
-		    }
-//			meanings.addAll(extract(string));
-		}
-		
-		for (int i = maxSize; i>0; i--) {
-		    List<String> wordsToScan = words2strings.get(i);
-		    NGram maxNGram = null;
-		    for(String string : wordsToScan){
-			meanings.addAll(extract(string));
-			if(!meanings.isEmpty()){
-			    maxNGram =  Collections.min(meanings);
-			    
+			int words = this.stringHelper.wordCount(string);
+			if(words2strings.keySet().contains(words)){
+				words2strings.get(words).add(string);
 			}
-		    }
-		    if((maxNGram != null)&&(maxNGram.getScore() >= THRESHOLD)){
-			break;
-		    }
+			else{
+				List<String> strings = new ArrayList<String>();
+				strings.add(string);
+				words2strings.put(words,strings);
+			}
+			//			meanings.addAll(extract(string));
+		}
+
+		for (int i = words2strings.size(); i>0; i--) {
+			List<String> wordsToScan = words2strings.get(i);
+			NGram maxNGram = null;
+			for(String string : wordsToScan){
+				meanings.addAll(extract(string));
+				if(!meanings.isEmpty()){
+					maxNGram =  Collections.min(meanings);
+
+				}
+			}
+			if((maxNGram != null)&&(maxNGram.getScore() >= THRESHOLD)){
+				break;
+			}
 		}
 		this.compressList(meanings);
 		if(meanings.size() != 0){
-		    List<NGram> bests = this.getBestResults(meanings);
-		    return extractMeanings(bests);
+			List<NGram> bests = this.getBestResults(meanings);
+			return extractMeanings(bests);
 		}
 		return null;
 
 	}
-	
+
 	/**
 	 * Prende i primi n NGram solo se non c'è una differenza maggiore di THRESHODL_BEST_SCORE_DIFFERENCE 
 	 * @param meanings
@@ -107,14 +110,14 @@ public class MeaningExtractor {
 		List<NGram> filtered = new LinkedList<NGram>();
 		float bestNGramScore = meanings.get(0).getScore();
 		for (int i=0; i<meanings.size(); i++){
-			
+
 			//Controllo se ho preso troppi elementi
 			if (i>=THRESHODL_BEST_NUMBER) break; 
 			NGram current = meanings.get(i);
-			
+
 			//Se è inferiore alla soglia, allora non trovo più buoni risultati
 			if (current.getScore() < bestNGramScore*THRESHODL_BEST_SCORE_DIFFERENCE) break;
-						
+
 			filtered.add(current);			
 		}
 		return filtered;
@@ -123,7 +126,7 @@ public class MeaningExtractor {
 	public List<NGram> extract(String field) {
 		GenericUrl url = this.prepareUrl(field);
 		List<Result> results = this.getResults(url);
-//		String meanings = ""; 
+		//		String meanings = ""; 
 
 		if (!results.isEmpty()) {
 			this.populateMap(results);
@@ -132,9 +135,9 @@ public class MeaningExtractor {
 			this.compressList(sortedNGrams);
 
 			List<NGram> filteredList = this.filterList(sortedNGrams);
-			
+
 			//meanings = this.extractMeanings(filteredList);
-//			System.out.println(meanings);
+			//			System.out.println(meanings);
 			return filteredList;
 		}
 		return new LinkedList<NGram>();
@@ -150,7 +153,7 @@ public class MeaningExtractor {
 
 		return meanings;
 	}
-	
+
 
 	private List<NGram> filterList(List<NGram> sortedNGrams) {
 		List<NGram> filteredList = new LinkedList<NGram>();
@@ -224,13 +227,13 @@ public class MeaningExtractor {
 
 		url.put("query", query);
 
-        	if (this.stringHelper.isUrl(query)) {
-        	    url.put("filter", "(all type:/internet/website)");
-        	}
+		if (this.stringHelper.isUrl(query)) {
+			url.put("filter", "(all type:/internet/website)");
+		}
 		url.put("limit", "20");
 		url.put("indent", "true");
 		url.put("lang", this.lang);
-		//url.put("key", properties.get("API_KEY"));
+		url.put("key", "AIzaSyAnY0LxO2mXhro_FVKAtpNoJiZZ1nNXryE");
 
 		return url;
 	}

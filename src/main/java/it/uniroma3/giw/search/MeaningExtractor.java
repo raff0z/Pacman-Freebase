@@ -30,6 +30,7 @@ public class MeaningExtractor {
 	private Map<String, NGram> ngrams2Result;
 	private StringHelper stringHelper;
 	private final float THRESHOLD = (float) 0.8;
+	private final int THRESHOLD_LENGHT_QUERY = 10;
 	private String lang;
 
 	private final int THRESHODL_BEST_NUMBER = 3;
@@ -51,7 +52,7 @@ public class MeaningExtractor {
 
 		List<String> resultList;
 
-		if(maxSize >= 10){
+		if(maxSize >= THRESHOLD_LENGHT_QUERY){
 			resultList = cleanedFieldList;
 		}
 		else{

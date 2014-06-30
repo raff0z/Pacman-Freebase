@@ -46,6 +46,7 @@ public class MeaningExtractor {
 	}
 
 	public List<NGram> getMeanings(String field){
+		this.ngrams2Result = new HashMap<String, NGram>();
 		String[] cleanedField = this.stringHelper.cleanString(field);
 		List<String> cleanedFieldList = new ArrayList<String>(Arrays.asList(cleanedField));
 		int maxSize = cleanedFieldList.size();

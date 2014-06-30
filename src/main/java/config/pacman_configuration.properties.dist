@@ -1,2 +1,3 @@
 csv_to_read = PATH
 csv_to_write = PATH
+stop_words_path = PATH+FILE

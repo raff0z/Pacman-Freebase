@@ -45,7 +45,7 @@ public class MeaningExtractor {
 		this.stringHelper = new StringHelper();
 	}
 
-	public String getMeanings(String field){
+	public List<NGram> getMeanings(String field){
 		String[] cleanedField = this.stringHelper.cleanString(field);
 		List<String> cleanedFieldList = new ArrayList<String>(Arrays.asList(cleanedField));
 		int maxSize = cleanedFieldList.size();
@@ -96,7 +96,8 @@ public class MeaningExtractor {
 		this.compressList(meanings);
 		if(meanings.size() != 0){
 			List<NGram> bests = this.getBestResults(meanings);
-			return extractMeanings(bests);
+			//return extractMeanings(bests);
+			return bests;
 		}
 		return null;
 
@@ -144,7 +145,8 @@ public class MeaningExtractor {
 		return new LinkedList<NGram>();
 	}	
 
-	private String extractMeanings(List<NGram> filteredList) {
+	public String extractMeanings(List<NGram> filteredList) {
+		if (filteredList == null) return "";
 		String meanings = "";
 		int i;
 		for(i = 0; i<filteredList.size()-1; i++) {
@@ -302,6 +304,28 @@ public class MeaningExtractor {
 	private List<String> createPowerSet(Result result){
 		List<String> tokens = new ArrayList<String>(Arrays.asList(result.getName().split(" ")));
 		return this.stringHelper.recursivePowerSet(tokens);
+	}
+
+	public String extractDocumentMeaning(List<List<NGram>> allMeanings) {
+		List<NGram> meanings = new LinkedList<NGram>();
+		for (List<NGram> means : allMeanings)
+			for (NGram m : means)
+				meanings.add(m);
+		
+		this.compressList(meanings);
+		Collections.sort(meanings);
+		this.getBestResults(meanings);
+		this.setPercentage(meanings);
+		
+		return this.extractMeanings( meanings );
+	}
+
+	private void setPercentage(List<NGram> meanings) {
+		float sum = 0;
+		for (NGram ngram : meanings )
+			sum += ngram.getScore();
+		for (NGram ngram : meanings)
+			ngram.setScore(ngram.getScore() / sum);		
 	}
 
 }

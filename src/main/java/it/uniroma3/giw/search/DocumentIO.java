@@ -80,7 +80,17 @@ public class DocumentIO {
 			e.printStackTrace();
 		}
 	}
+	
+	public void saveCSV(String fileName, String[] line) {
 
+		try {
+			CSVWriter writer = new CSVWriter(new FileWriter(this.csvToWrite + fileName + ".csv", true));
+			writer.writeNext(line);				
+			writer.close();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
 //	private void cleanPath() {
 //		File dir = new File(this.csvToWrite);
 //		if (dir.exists())

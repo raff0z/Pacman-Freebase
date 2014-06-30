@@ -57,7 +57,7 @@ public class NGram implements Comparable<NGram>{
 	}
 
 	public int compareTo(NGram o) {
-		return (int) (o.getScore()*10000 - this.getScore()*10000); // Moltiplichiamo per 100 per aumentare la precisione
+		return new Float(o.getScore()).compareTo(new Float(this.getScore())); 
 	}
 	
 	/**
